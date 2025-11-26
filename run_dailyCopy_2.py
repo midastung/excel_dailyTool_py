@@ -1,5 +1,5 @@
 # run_dailyCopy_2.py
-import daliy_copy_task
+import daily_copy_task
 
 # 🔑 新增參數 target_date=None
 def run_step(wb_src, wb_dst, target_date=None):
@@ -236,3 +236,58 @@ def run_step(wb_src, wb_dst, target_date=None):
             "dst_value_start_offset_col": 0,
         },
         { # 異動申請數(消客)
+            "src_file": "114年dailyTool-單日",
+            "src_sheet": "無上網日統計模板",
+            "dst_prefix": "影視業務日報表",
+            "dst_sheet": "無上網日統計",
+            "src_key_cell": "A190",
+            "src_date_cell": "B190",
+            "src_value_range": "B191:B214",
+            "dst_key_cell": "A190",
+            "dst_date_row": 191,
+            "dst_value_start_offset_row": 1,
+            "dst_value_start_offset_col": 0,
+        },
+        { # 異動竣工數(消客)
+            "src_file": "114年dailyTool-單日",
+            "src_sheet": "無上網日統計模板",
+            "dst_prefix": "影視業務日報表",
+            "dst_sheet": "無上網日統計",
+            "src_key_cell": "A217",
+            "src_date_cell": "B217",
+            "src_value_range": "B218:B241",
+            "dst_key_cell": "A217",
+            "dst_date_row": 218,
+            "dst_value_start_offset_row": 1,
+            "dst_value_start_offset_col": 0,
+        },
+        { # 退租申請數(消客)
+            "src_file": "114年dailyTool-單日",
+            "src_sheet": "無上網日統計模板",
+            "dst_prefix": "影視業務日報表",
+            "dst_sheet": "無上網日統計",
+            "src_key_cell": "A244",
+            "src_date_cell": "B244",
+            "src_value_range": "B245:B268",
+            "dst_key_cell": "A298",
+            "dst_date_row": 299,
+            "dst_value_start_offset_row": 1,
+            "dst_value_start_offset_col": 0,
+        },
+        { # 退租竣工數(消客)
+            "src_file": "114年dailyTool-單日",
+            "src_sheet": "無上網日統計模板",
+            "dst_prefix": "影視業務日報表",
+            "dst_sheet": "無上網日統計",
+            "src_key_cell": "A271",
+            "src_date_cell": "B271",
+            "src_value_range": "B272:B295",
+            "dst_key_cell": "A325",
+            "dst_date_row": 326,
+            "dst_value_start_offset_row": 1,
+            "dst_value_start_offset_col": 0,
+        }
+    ]
+
+    # 執行任務 (傳入 target_date 作為 force_date)
+    return daily_copy_task.copy_by_mapping_openpyxl(wb_src, wb_dst, tasks, force_date=target_date)
