@@ -39,10 +39,6 @@ def main():
         file_step1 = st.file_uploader("mailmodamount (Step 1)", type=["xlsx", "csv"], key="f1")
         
         # Step 2 用的檔案 (dailybundlemail / 114年dailyTool-單日)
-        # 注意：根據你的 run_dailyCopy_2，這個來源其實是 Step 1 跑完後的結果 (或者是同一份 dailyTool?)
-        # 這裡假設 Step 2 也是讀取同一份來源，或是 Step 1 的結果。
-        # 如果 Step 2 是讀取 "114年dailyTool-單日.xlsx"，那其實就是 file_tpl 本身 (在 Step 1 被修改後)
-        # 但如果 Step 2 是讀取另一個外部檔案，請在這裡加上傳框
         
     with col2:
         st.subheader("2. 模板檔案")
@@ -68,10 +64,6 @@ def main():
                 logs.append(msg1)
                 
                 # --- 執行 Step 2 ---
-                # 注意：Step 2 的來源到底是誰？
-                # 原本程式 src_file="114年dailyTool-單日"，意思是 Step 2 的來源其實是 Step 1 剛剛貼上的結果
-                # 所以這裡我們要把 wb_dst 同時當作 source 和 destination 傳進去
-                # 或者，如果 source 是另一個檔案，請修改這裡
                 if ok1:
                     # 假設 Step 2 的來源就是 Step 1 剛剛修改好的 wb_dst (因為它叫 114年dailyTool-單日)
                     ok2, msg2 = run_dailyCopy_2.run_step(wb_dst, wb_dst)
