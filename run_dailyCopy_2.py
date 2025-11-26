@@ -1,5 +1,5 @@
 # run_dailyCopy_2.py
-import daliy_copy_task
+import daily_copy_task
 
 def run_step(wb_src, wb_dst):
     """
@@ -288,4 +288,4 @@ def run_step(wb_src, wb_dst):
     ]
 
     # 執行任務
-    return daliy_copy_task.copy_by_mapping_openpyxl(wb_src, wb_dst, tasks)
+    return daily_copy_task.copy_by_mapping_openpyxl(wb_src, wb_dst, tasks)
