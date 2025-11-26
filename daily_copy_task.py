@@ -1,4 +1,3 @@
-# daliy_copy_task.py
 import openpyxl
 from openpyxl.utils import column_index_from_string, get_column_letter
 from datetime import datetime, date

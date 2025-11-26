@@ -5,10 +5,6 @@ def run_step(wb_src, wb_dst):
     """
     被 app.py 呼叫的主入口
     """
-    
-    # 定義所有複製任務 (從原檔移植)
-    # 來源檔名 src_file 和 dst_prefix 在雲端版不需要了，因為 Workbook 是直接傳進來的
-    # 但保留它們作為註解或參考沒關係
     tasks = [
         # --- (ALL) 系列 ---
         {
