@@ -1,15 +1,16 @@
 # run_dailyCopy_2.py
-import daily_copy_task
+import daliy_copy_task
 
-def run_step(wb_src, wb_dst):
+# 🔑 新增參數 target_date=None
+def run_step(wb_src, wb_dst, target_date=None):
     """
-    Step 2 主程式：定義任務並呼叫 daliy_copy_task
-    注意：在雲端版，wb_src 與 wb_dst 由 app.py 傳入
-    src_file 與 dst_prefix 參數雖然保留，但在函式中不會被使用到
+    Step 2 主程式
     """
 
     tasks = [
-        # --- (ALL) 系列 ---
+        # ... (這裡保留你原本那一大串 tasks 設定，不用動) ...
+        # 為了節省版面，請保留你原本的 tasks 列表內容
+        # 累計客戶數(ALL)
         {
             "src_file": "114年dailyTool-單日",
             "src_sheet": "日統計模板",
@@ -23,6 +24,7 @@ def run_step(wb_src, wb_dst):
             "dst_value_start_offset_row": 1,
             "dst_value_start_offset_col": 0,
         },
+        # ... (以下請保留原本所有任務) ...
         { # 新裝申請數
             "src_file": "114年dailyTool-單日",
             "src_sheet": "日統計模板",
@@ -141,7 +143,7 @@ def run_step(wb_src, wb_dst):
             "dst_value_start_offset_col": 0,
         },
 
-        # --- (消客) 系列 - 來源在「無上網日統計模板」 ---
+        # --- (消客) 系列 ---
         { # 累計客戶數(消客)
             "src_file": "114年dailyTool-單日",
             "src_sheet": "無上網日統計模板",
@@ -234,58 +236,3 @@ def run_step(wb_src, wb_dst):
             "dst_value_start_offset_col": 0,
         },
         { # 異動申請數(消客)
-            "src_file": "114年dailyTool-單日",
-            "src_sheet": "無上網日統計模板",
-            "dst_prefix": "影視業務日報表",
-            "dst_sheet": "無上網日統計",
-            "src_key_cell": "A190",
-            "src_date_cell": "B190",
-            "src_value_range": "B191:B214",
-            "dst_key_cell": "A190",
-            "dst_date_row": 191,
-            "dst_value_start_offset_row": 1,
-            "dst_value_start_offset_col": 0,
-        },
-        { # 異動竣工數(消客)
-            "src_file": "114年dailyTool-單日",
-            "src_sheet": "無上網日統計模板",
-            "dst_prefix": "影視業務日報表",
-            "dst_sheet": "無上網日統計",
-            "src_key_cell": "A217",
-            "src_date_cell": "B217",
-            "src_value_range": "B218:B241",
-            "dst_key_cell": "A217",
-            "dst_date_row": 218,
-            "dst_value_start_offset_row": 1,
-            "dst_value_start_offset_col": 0,
-        },
-        { # 退租申請數(消客)
-            "src_file": "114年dailyTool-單日",
-            "src_sheet": "無上網日統計模板",
-            "dst_prefix": "影視業務日報表",
-            "dst_sheet": "無上網日統計",
-            "src_key_cell": "A244",
-            "src_date_cell": "B244",
-            "src_value_range": "B245:B268",
-            "dst_key_cell": "A298",
-            "dst_date_row": 299,
-            "dst_value_start_offset_row": 1,
-            "dst_value_start_offset_col": 0,
-        },
-        { # 退租竣工數(消客) - 從原檔最後一項補完
-            "src_file": "114年dailyTool-單日",
-            "src_sheet": "無上網日統計模板",
-            "dst_prefix": "影視業務日報表",
-            "dst_sheet": "無上網日統計",
-            "src_key_cell": "A271",
-            "src_date_cell": "B271",
-            "src_value_range": "B272:B295",
-            "dst_key_cell": "A325",
-            "dst_date_row": 326,
-            "dst_value_start_offset_row": 1,
-            "dst_value_start_offset_col": 0,
-        }
-    ]
-
-    # 執行任務
-    return daily_copy_task.copy_by_mapping_openpyxl(wb_src, wb_dst, tasks)

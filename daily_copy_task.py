@@ -1,11 +1,9 @@
 # daliy_copy_task.py
 import openpyxl
 from datetime import datetime, date
-# 🔑 新增這行 import
 from openpyxl.cell.cell import MergedCell
 
 def get_cell_value(ws, cell_address):
-    """安全讀取單一儲存格的值"""
     try:
         return ws[cell_address].value
     except:
@@ -29,8 +27,12 @@ def find_date_column(ws, row_idx, target_date):
             return col
     return None
 
-def copy_by_mapping_openpyxl(wb_src, wb_dst, tasks):
-    """執行 tasks 列表中的所有複製任務"""
+# 🔑 新增參數 force_date
+def copy_by_mapping_openpyxl(wb_src, wb_dst, tasks, force_date=None):
+    """
+    執行 tasks 列表中的所有複製任務
+    force_date: 若無法從來源格讀取日期，則使用此日期
+    """
     logs = []
     success_count = 0
     fail_count = 0
@@ -55,13 +57,17 @@ def copy_by_mapping_openpyxl(wb_src, wb_dst, tasks):
                 fail_count += 1
                 continue
 
-            # 2. 獲取來源日期
+            # 2. 獲取來源日期 (優先讀取 Excel，失敗則用 force_date)
             src_date_val = get_cell_value(ws_src, task["src_date_cell"])
             if isinstance(src_date_val, datetime):
                 src_date_val = src_date_val.date()
             
+            # 如果讀不到 (例如是公式)，且有提供強制日期，就用強制的
+            if not isinstance(src_date_val, date) and force_date:
+                src_date_val = force_date
+
             if not src_date_val:
-                logs.append(f"⚠️ {task_label}: 無法從 {task['src_date_cell']} 讀取日期")
+                logs.append(f"⚠️ {task_label}: 無法從 {task['src_date_cell']} 讀取日期，且無強制日期")
                 fail_count += 1
                 continue
 
@@ -91,16 +97,15 @@ def copy_by_mapping_openpyxl(wb_src, wb_dst, tasks):
             dst_start_col = target_col_idx + task["dst_value_start_offset_col"]
             dst_start_row = date_row + task["dst_value_start_offset_row"]
             
-            # 7. 執行寫入 (加入 MergedCell 防呆)
+            # 7. 執行寫入 (避開 MergedCell)
             for i, val in enumerate(src_values):
                 current_row = dst_start_row + i
                 current_col = dst_start_col
                 
                 dst_cell = ws_dst.cell(row=current_row, column=current_col)
                 
-                # 🛑 關鍵修正：檢查是否為合併儲存格
                 if isinstance(dst_cell, MergedCell):
-                    continue # 跳過唯讀格
+                    continue 
 
                 dst_cell.value = val
                 
