@@ -9,12 +9,24 @@ import daily_single_1
 import run_dailyCopy_2 
 
 # -----------------
-# 輔助函式
+# 輔助函式 (已修正編碼問題)
 # -----------------
 def load_file(uploaded_file):
-    """讀取 Excel/CSV 轉為 Workbook"""
+    """讀取 Excel/CSV 轉為 Workbook，並處理中文編碼"""
     if uploaded_file.name.lower().endswith('.csv'):
-        df = pd.read_csv(uploaded_file)
+        try:
+            # 1. 先嘗試 UTF-8
+            df = pd.read_csv(uploaded_file, encoding='utf-8')
+        except UnicodeDecodeError:
+            # 2. 失敗則嘗試 Big5 (台灣系統常見)
+            uploaded_file.seek(0) # 歸零指標
+            try:
+                df = pd.read_csv(uploaded_file, encoding='big5')
+            except UnicodeDecodeError:
+                # 3. 再失敗嘗試 CP950
+                uploaded_file.seek(0)
+                df = pd.read_csv(uploaded_file, encoding='cp950')
+
         wb = openpyxl.Workbook()
         ws = wb.active
         for r in dataframe_to_rows(df, index=False, header=True):
@@ -38,8 +50,6 @@ def main():
         # Step 1 用的檔案
         file_step1 = st.file_uploader("mailmodamount (Step 1)", type=["xlsx", "csv"], key="f1")
         
-        # Step 2 用的檔案 (dailybundlemail / 114年dailyTool-單日)
-        
     with col2:
         st.subheader("2. 模板檔案")
         file_tpl = st.file_uploader("模板 (Template)", type=["xlsx"], key="tpl")
@@ -53,7 +63,7 @@ def main():
         
         with st.spinner("處理中..."):
             try:
-                # 1. 載入檔案
+                # 1. 載入檔案 (現在支援 Big5 CSV 了)
                 wb_src_step1 = load_file(file_step1)
                 wb_dst = openpyxl.load_workbook(file_tpl)
                 
@@ -64,11 +74,10 @@ def main():
                 logs.append(msg1)
                 
                 # --- 執行 Step 2 ---
+                # Step 2 使用 Step 1 處理完的 wb_dst 作為來源與目的
                 if ok1:
-                    # 假設 Step 2 的來源就是 Step 1 剛剛修改好的 wb_dst (因為它叫 114年dailyTool-單日)
                     ok2, msg2 = run_dailyCopy_2.run_step(wb_dst, wb_dst)
                     
-                    # 如果 msg2 是 list (因為我們在 daliy_copy_task 回傳了 list logs)，要展開顯示
                     if isinstance(msg2, list):
                         logs.extend(msg2)
                     else:
