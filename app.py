@@ -2,6 +2,7 @@ import streamlit as st
 import openpyxl
 import io
 import pandas as pd
+import csv  # 引入 csv 模組
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 # 匯入你的模組
@@ -9,30 +10,63 @@ import daily_single_1
 import run_dailyCopy_2 
 
 # -----------------
-# 輔助函式 (已修正編碼問題)
+# 輔助函式 (超級強固版：支援 CSV 不規則欄位 + 編碼偵測)
 # -----------------
 def load_file(uploaded_file):
-    """讀取 Excel/CSV 轉為 Workbook，並處理中文編碼"""
+    """
+    讀取 Excel 或 CSV 轉為 Workbook
+    特色：
+    1. 自動偵測 UTF-8 / Big5 / CP950 編碼
+    2. 使用 csv 模組讀取，解決 'Expected 1 fields in line X' 的 Pandas 錯誤
+    """
     if uploaded_file.name.lower().endswith('.csv'):
+        # 1. 取得二進位資料
+        bytes_data = uploaded_file.getvalue()
+        
+        # 2. 偵測編碼並解碼為字串
+        text_data = None
+        encoding_used = None
+        
+        # 嘗試 UTF-8
         try:
-            # 1. 先嘗試 UTF-8
-            df = pd.read_csv(uploaded_file, encoding='utf-8')
+            text_data = bytes_data.decode('utf-8')
+            encoding_used = 'utf-8'
         except UnicodeDecodeError:
-            # 2. 失敗則嘗試 Big5 (台灣系統常見)
-            uploaded_file.seek(0) # 歸零指標
+            pass
+            
+        # 嘗試 Big5 (繁體中文常見)
+        if text_data is None:
             try:
-                df = pd.read_csv(uploaded_file, encoding='big5')
+                text_data = bytes_data.decode('big5')
+                encoding_used = 'big5'
             except UnicodeDecodeError:
-                # 3. 再失敗嘗試 CP950
-                uploaded_file.seek(0)
-                df = pd.read_csv(uploaded_file, encoding='cp950')
+                pass
+                
+        # 嘗試 CP950 (Windows 擴充繁體)
+        if text_data is None:
+            try:
+                text_data = bytes_data.decode('cp950')
+                encoding_used = 'cp950'
+            except UnicodeDecodeError:
+                # 真的沒招了，強制忽略錯誤讀取
+                text_data = bytes_data.decode('utf-8', errors='ignore')
+                encoding_used = 'ignore'
 
+        # 3. 使用 csv 模組讀取 (容忍不規則欄位)
+        f_io = io.StringIO(text_data)
+        reader = csv.reader(f_io)
+        
         wb = openpyxl.Workbook()
         ws = wb.active
-        for r in dataframe_to_rows(df, index=False, header=True):
-            ws.append(r)
+        
+        # 逐列寫入 Excel (不管每一列有幾個欄位，通通寫進去)
+        for row in reader:
+            ws.append(row)
+            
         return wb
+        
     else:
+        # Excel 檔案直接讀取
         return openpyxl.load_workbook(uploaded_file, data_only=True)
 
 # -----------------
@@ -63,7 +97,7 @@ def main():
         
         with st.spinner("處理中..."):
             try:
-                # 1. 載入檔案 (現在支援 Big5 CSV 了)
+                # 1. 載入檔案 (使用新版 load_file)
                 wb_src_step1 = load_file(file_step1)
                 wb_dst = openpyxl.load_workbook(file_tpl)
                 
